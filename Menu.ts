@@ -14,6 +14,7 @@ const produtoController = new ProdutoController();
 //Criar um array contendo os tipos de Produto;
 const tipoProduto = ['Smartphone', 'Notebook'];
 const listaOrdenacao = ['Ordenar por Nome', 'Ordenar por Preco'];
+const buscaProduto = ['Buscar por ID', 'Buscar por Nome'];
 
 export function main() {
 
@@ -32,7 +33,7 @@ export function main() {
         console.log("┌────────────────────── MENU ────────────────────────┐");
         console.log("│                                                    │");
         console.log("│  1 ─ Listar todos os Produtos                      │");
-        console.log("│  2 ─ Buscar Produto pelo ID                        │");
+        console.log("│  2 ─ Buscar Produto                                │");
         console.log("│  3 ─ Cadastrar Produto                             │");
         console.log("│  4 ─ Atualizar Produto                             │");
         console.log("│  5 ─ Remover Produto                               │");
@@ -62,7 +63,7 @@ export function main() {
                 break;
             case 2://Pronto
                 console.log("\nBuscar Produto pelo ID");
-                buscarProdutoPorID();
+                BuscarProduto();
                 keyPress();
                 break;
             case 3://Pronto
@@ -131,11 +132,61 @@ function listarTodos(): void {
 }
 
 //Opção 2 -- Testado e funcionando
-function buscarProdutoPorID(): void {
+function BuscarProduto(): void {
+
+    console.log("Escolha o tipo de busca:");
+    console.log("1 - Buscar por ID");
+    console.log("2 - Buscar por Nome");
+
+    const opcao = Input.keyInSelect(buscaProduto, "", { cancel: false }) + 1;
+
+    switch (opcao) {
+        case 1:
+            buscarProdutoID();
+            break;
+        case 2:
+            buscarProdutoPorNome();
+            break;
+        default:
+            console.log(colors.fg.red, "Opção inválida!", colors.reset);
+    }
+}
+function buscarProdutoID(): void {
     console.log("Digite o ID do Produto: ");
     const id = Input.questionInt("");
 
     produtoController.procurarPorID(id);
+}
+
+function buscarProdutoPorNome(): void {
+
+    console.log("Digite o nome ou parte do nome do produto:");
+    const busca = Input.question("").toLowerCase();
+
+    const produtos = produtoController.listarProdutos();
+
+    if (produtos.length === 0) {
+        console.log(colors.fg.yellow, "Nenhum produto cadastrado.", colors.reset);
+        return;
+    }
+
+    const encontrados = produtos.filter(
+        (produto: Produto) =>
+            produto.nome.toLowerCase().includes(busca)
+    );
+
+    if (encontrados.length === 0) {
+        console.log(colors.fg.yellow, "Nenhum produto encontrado com esse nome.", colors.reset);
+        return;
+    }
+
+    console.log(
+        colors.fg.green,
+        `\nProdutos encontrados (${encontrados.length}):\n`,
+        colors.reset
+    );
+
+    encontrados.forEach(produto => produto.visualizar());
 }
 
 //Opção 3 -- Testado e funcionando
