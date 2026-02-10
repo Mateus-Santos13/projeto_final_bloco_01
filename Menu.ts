@@ -1,21 +1,23 @@
-//Menu cru, sem nenhuma função implementada, utilizar como default para trabalho
 //E-commerce de eletrônicos
-import leia from "readline-sync";//import readline sync para leitura de dados do teclado
+//import leia from "readline-sync";//import readline sync para leitura de dados do teclado|Não está mais sendo usado aqui
+import { ProdutoController } from "./src/controller/ProdutoController";
+import { Smartphone } from "./src/model/Smartphone";
+import { Notebook } from "./src/model/Notebook";
 import { colors } from './src/util/Colors';//importando o arquivo colors.ts
 import { formatarMoeda } from "./src/util/Currency";
 import { Input } from "./src/util/Input";
 
 //Criar um objeto global da classe ProdutoController
-
+const produtoController = new ProdutoController();
 
 //Criar um array contendo os tipos de Produto;
-const tipoProdutos = ['Smartphone', 'Notebook'];
+const tipoProduto = ['Smartphone', 'Notebook'];
 
 export function main() {
 
     let opcao: number;
+    criarProdutosTeste();
 
-    
 
     while (true) {
         //Aqui entra os console log do menu com as configurações de cor
@@ -47,25 +49,29 @@ export function main() {
             process.exit(0);
         }
         switch (opcao) { //Opções do menu
-            case 1:
+            case 1://Pronto
                 console.log("\nListar todos os Produtos");
-                
+                listarTodos()
                 keyPress();
                 break;
-            case 2:
+            case 2://Pronto
                 console.log("\nBuscar Produto pelo ID");
+                buscarProdutoPorID();
                 keyPress();
                 break;
-            case 3:
+            case 3://Pronto
                 console.log("\nCadastrar Produto");
+                criarProduto();
                 keyPress();
                 break;
             case 4:
                 console.log("\nAtualizar dados do Produto");
+                atualizarProduto();
                 keyPress();
                 break;
             case 5:
-                console.log("\nRemover Produto do carrinho");
+                console.log("\nRemover Produto");
+                deletarProdutoPorNumero();
                 keyPress();
                 break;
             default:
@@ -78,13 +84,13 @@ export function main() {
 
 //Função sobre, apenas mostra os dados da pessoa que desenvolveu (Eu);
 export function sobre(): void {
-    console.log("\n************************************");
+    console.log(colors.fg.cyan, colors.bg.black, "\n************************************");
     console.log("Free BIT — inovação em cada bit!");
     console.log("Projeto desenvolvido por: ");
     console.log("Mateus Santos");
     console.log("mateus.santos.eng.elt@gmail.com");
     console.log("https://github.com/Mateus-Santos13");
-    console.log("************************************");
+    console.log("************************************", colors.reset);
 }
 
 //Função de pausa entre as opções do menu;
@@ -93,17 +99,187 @@ function keyPress(): void {
     Input.prompt();
 }
 
+//Opção 1 -- Testado e funcionando
+function listarTodos(): void {
+    produtoController.listarTodas();
+}
 
-//Essa função de testes DEVE estar no código final!!!
-// function criarProdutosTeste(): void {
+//Opção 2 -- Testado e funcionando
+function buscarProdutoPorID(): void {
+    console.log("Digite o ID do Produto: ");
+    const id = Input.questionInt("");
 
-//     // Instâncias da Classe ProdutoCorrente
-//     Produtos.cadastrar(new ProdutoCorrente(Produtos.gerarNumero(), 1234, 'Amanda Magro', 1, 1000000.00, 100000.00));
-//     Produtos.cadastrar(new ProdutoCorrente(Produtos.gerarNumero(), 4578, 'João da Silva', 1, 1000.00, 100.00));
+    produtoController.procurarPorID(id);
+}
 
-//     // Instâncias da Classe ProdutoPoupança
-//     Produtos.cadastrar(new ProdutoPoupanca(Produtos.gerarNumero(), 5789, "Geana Almeida", 2, 10000, 10));
-//     Produtos.cadastrar(new ProdutoPoupanca(Produtos.gerarNumero(), 5698, "Jean Lima", 2, 15000, 15));
-// }
+//Opção 3 -- Testado e funcionando
+function criarProduto() {
+    //id: number, nome: string, tipo: number, preco: number
+    console.log("Digite o nome do produto: ");
+
+    const nome = Input.question("");
+
+    console.log("Selecione o tipo da Produto: ");
+
+    console.log("1 - Smartphone");
+    console.log("2 - Notebook");
+
+    const tipo = Input.keyInSelect(tipoProduto, "", { cancel: false }) + 1;
+
+    console.log("Digite o preço do Produto: ");
+
+    const preco = Input.questionFloat("");
+
+    switch (tipo) {
+        case 1:
+            //Produto Medicamento
+            console.log("Digite a marca do smartphone: ");
+            const marca = Input.question("");
+            console.log("Digite a memória do smartphone: ");
+            const memoria = Input.questionFloat("");
+            //id: number, nome: string, tipo: number, preco: number, marca: string, memoria: number
+            produtoController.cadastrar(new Smartphone(produtoController.gerarID(), nome, tipo, preco, marca, memoria));
+            break;
+        case 2:
+
+            console.log("Digite o processador do notebook: ");
+            const processador = Input.question("");
+            console.log("Digite o tamanho da tela do notebook: ");
+            const tamanhoTela = Input.questionFloat("");
+            //id: number, nome: string, tipo: number, preco: number, processador: string, tamanhoTela: number
+            produtoController.cadastrar(new Notebook(produtoController.gerarID(), nome, tipo, preco, processador, tamanhoTela));
+            break;
+        default:
+            console.log("Tipo de Produto inválido!");
+            break;
+    }
+}
+//Opção 4 -- Testado e funcionando
+function atualizarProduto(): void {
+
+    // Solicita o número da Produto
+    console.log("Digite o ID do Produto: ");
+    const id = Input.questionInt("");
+
+    // Verifica se a Produto existe
+    const Produto = produtoController.buscarNoArray(id);
+
+    // Se a Produto existir...
+    if (Produto !== null) {
+
+        /**
+         * Guarda os valores atuais da Produto em variáveis
+         * Exceto tipo que não será aramazenado em uma constante
+         * porque não terá o seu valor modificado
+         */
+        let id: number = Produto.id;
+        let nome: string = Produto.nome;
+        const tipo: number = Produto.tipo;
+        let preco: number = Produto.preco;
+
+        /**
+         * Atualização da Agência
+         * 
+         * 1. Exibe o valor atual da agência
+         * 2. Se pressionar ENTER o valor atual será mantido
+         * 3. Para o ENTER funcionar, passamos o parâmetro
+         *    default input, que indica o valor padrão (solução mais simples)
+         * 4. Caso contrário o valor atual será substituído
+         * 5. Como estamos usando o  método questionInt, 
+         *    a validação dos dados está garantida
+         * 
+         * Os demais atributos seguirão a mesma lógica, alterando
+         * apenas a função de input, de acordo com o tipo.
+         */
+
+        // Atualização da Titular
+        console.log(`\nNome do produto atual: ${nome}`);
+        console.log("Digite o novo nome do produto: ");
+        console.log("(Pressione ENTER para manter o valor atual)");
+        nome = Input.question("", { defaultInput: nome });
+
+        // Atualização do Saldo
+        console.log(`\nPreço atual: ${formatarMoeda(preco)}`);
+        console.log("Digite o novo preço do produto: ");
+        console.log("(Pressione ENTER para manter o valor atual)");
+        preco = Input.questionFloat("", { defaultInput: preco });
+
+        // Atualização de cada atributo específico do tipo
+        switch (tipo) {
+            case 1: // Smartphone
+                let marca: string = (Produto as Smartphone).marca;
+
+                // Atualização da marca
+                console.log(`\nMarca atual: ${marca}`);
+                console.log("Digite o novo nome da marca: ");
+                console.log("(Pressione ENTER para manter o valor atual)");
+                marca = Input.question("", { defaultInput: marca });
+
+                // Atualização da memória
+                let memoria: number = (Produto as Smartphone).memoria;
+                console.log(`\nMemória atual: ${memoria}`);
+                console.log("Digite o valor da nova memória: ");
+                console.log("(Pressione ENTER para manter o valor atual)");
+                memoria = Input.questionInt("", { defaultInput: memoria });
+
+                //id: number, nome: string, tipo: number, preco: number, marca: string, memoria: number
+                produtoController.atualizar(new Smartphone(id, nome, tipo, preco, marca, memoria));
+                break;
+
+            case 2: // Notebook
+
+                let processador: string = (Produto as Notebook).processador;
+
+                // Atualização do processador do notebook
+                console.log(`\nProcessador atual: ${processador}`);
+                console.log("Digite o novo processador do notebook: ");
+                console.log("(Pressione ENTER para manter o valor atual)");
+                processador = Input.question("", { defaultInput: processador });
+
+                // Atualização do tamanho da tela do notebook
+                let tamanhoTela: number = (Produto as Notebook).tamanhoTela;
+                console.log(`\nTamanho de tela atual: ${tamanhoTela}`);
+                console.log("Digite o novo tamanho de tela do notebook: ");
+                console.log("(Pressione ENTER para manter o valor atual)");
+                tamanhoTela = Input.questionFloat("", { defaultInput: tamanhoTela });
+
+                //id: number, nome: string, tipo: number, preco: number, processador: string, tamanhoTela: number
+                produtoController.atualizar(new Notebook(id, nome, tipo, preco, processador, tamanhoTela));
+                break;
+        }
+    } else {
+        console.log(colors.fg.red, `O Produto ID ${id} não foi encontrado!`, colors.reset);
+    }
+}
+
+//Opção 5 -- Testado e funcionando
+function deletarProdutoPorNumero(): void {
+    console.log("Digite o número do ID do produto: ");
+    const id = Input.questionInt("");
+    const Produto = produtoController.procurarPorID(id);
+
+    if (Produto !== null) {
+        console.log("Tem certeza que deseja deletar esse Produto?");
+        const confirmar = Input.keyInSelect(["Sim", "Nao"], "", { cancel: false }) + 1; //Confirmação de exclusão para segurança dos dados;
+
+        if (confirmar === 2) {
+            console.log("Operação cancelada!");
+            return;
+        }
+        produtoController.deletar(id);
+    }
+}
+function criarProdutosTeste(): void {
+
+    // Instâncias da Classe Smartphone
+    //id: number, nome: string, tipo: number, preco: number, marca: string, memoria: number
+    produtoController.cadastrar(new Smartphone(produtoController.gerarID(), "Iphone 17", 1, 7000.00, 'Apple', 128));
+    produtoController.cadastrar(new Smartphone(produtoController.gerarID(), "Galaxy S26", 1, 8500.00, 'Samsung', 512));
+
+    // Instâncias da Classe Notebook
+    //id: number, nome: string, tipo: number, preco: number, processador: string, tamanhoTela: string
+    produtoController.cadastrar(new Notebook(produtoController.gerarID(), "Vivobook", 2, 7000.00, 'I7', 14.5));
+    produtoController.cadastrar(new Notebook(produtoController.gerarID(), "Nitro V15", 2, 7000.00, 'Ryzen 5 5600u', 16.5));
+}
 
 main();

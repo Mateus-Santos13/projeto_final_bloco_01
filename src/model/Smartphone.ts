@@ -30,7 +30,7 @@ export class Smartphone extends Produto {
 
     public visualizar(): void{
         super.visualizar();
-        console.log(`Marca do aparelho: ${this._marca}`);
-        console.log(`Memória do aparelho: ${this._memoria}`);
+        console.log(`Marca do smartphone: ${this._marca}`);
+        console.log(`Memória do smartphone: ${this._memoria} GB`);
     }
 }
