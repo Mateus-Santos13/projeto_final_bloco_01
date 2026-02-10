@@ -6,6 +6,7 @@ import { Notebook } from "./src/model/Notebook";
 import { colors } from './src/util/Colors';//importando o arquivo colors.ts
 import { formatarMoeda } from "./src/util/Currency";
 import { Input } from "./src/util/Input";
+import { Produto } from "./src/model/Produto";
 
 //Criar um objeto global da classe ProdutoController
 const produtoController = new ProdutoController();
@@ -37,6 +38,8 @@ export function main() {
         console.log("│  5 ─ Remover Produto                               │");
         console.log("│  6 ─ Listar produtos por tipo                      │");
         console.log("│  7 ─ Listar produtos ordenados por nome ou preço   │");
+        console.log("│  8 ─ Listar Produtos por Faixa de Preço            │");
+        console.log("│  9 ─ Resumo do Estoque                             │");
         console.log("│  0 ─ Sair                                          │");
         console.log("│                                                    │");
         console.log("└────────────────────────────────────────────────────┘");
@@ -83,8 +86,18 @@ export function main() {
                 keyPress();
                 break;
             case 7:
-                console.log("\nListar produtos por tipo");
+                console.log("\nListar produtos ordenados por nome ou preço");
                 listarOrdenado();
+                keyPress();
+                break;
+            case 8:
+                console.log("\nListar Produtos por Faixa de Preço");
+                listarPorFaixaDePreco();
+                keyPress();
+                break;
+            case 9:
+                console.log("\nResumo do Estoque");
+                resumoEstoque();
                 keyPress();
                 break;
             default:
@@ -276,7 +289,7 @@ function deletarProdutoPorNumero(): void {
     }
 }
 //Opção 6 -- Extra - Nova função, listar produtos de um mesmo tipo
-function listarPorTipo(){
+function listarPorTipo() {
 
     console.log("Selecione o tipo da Produto: ");
 
@@ -290,22 +303,22 @@ function listarPorTipo(){
     let encontrados = false;
 
     produtos.forEach(produto => {
-        if(tipo === 1 && produto instanceof Smartphone){
+        if (tipo === 1 && produto instanceof Smartphone) {
             produto.visualizar();
             encontrados = true;
         }
-        if(tipo === 2 && produto instanceof Notebook){
+        if (tipo === 2 && produto instanceof Notebook) {
             produto.visualizar();
             encontrados = true;
         }
-        if(!encontrados){
+        if (!encontrados) {
             console.log("Nenhum produto do tipo selecionado foi encontrado!");
         }
     })
-    
+
 }
-//Opção 7 -- Extra - Nova função, listar produtos ordenados por nome ou preço
-function listarOrdenado(){
+//Opção 7 -- Extra - Nova função, listar produtos ordenados por nome ou preço -- Testado e funcionando
+function listarOrdenado() {
 
     console.log("Escolha o critério de ordenação:");
     console.log("1 - Ordenar por Nome");
@@ -337,8 +350,81 @@ function listarOrdenado(){
     }
 
     produtos.forEach(produto => produto.visualizar());
-    
+
 }
+//Opção 8 -- Extra - Nova função, listar produtos por faixa de preço -- Testado e funcionando
+function listarPorFaixaDePreco(): void {
+    console.log("Digite o preço mínimo:");
+    const precoMin = Input.questionFloat("");
+
+    console.log("Digite o preço máximo:");
+    const precoMax = Input.questionFloat("");
+
+    if (precoMin > precoMax) {
+        console.log(colors.fg.red, "Preço mínimo não pode ser maior que o máximo.", colors.reset);
+        return;
+    }
+
+    const produtos = produtoController.listarProdutos();
+
+    const filtrados = produtos.filter(
+        produto => produto.preco >= precoMin && produto.preco <= precoMax
+    );
+
+    if (filtrados.length === 0) {
+        console.log(colors.fg.yellow, "Nenhum produto encontrado nessa faixa de preço.", colors.reset);
+        return;
+    }
+
+    console.log(
+        colors.fg.green,
+        `\nProdutos entre ${formatarMoeda(precoMin)} e ${formatarMoeda(precoMax)}:\n`,
+        colors.reset
+    );
+
+    filtrados.forEach(produto => produto.visualizar());
+}
+//Opção 9 -- Extra: resumo do estoque -- Testado e funcionando
+function resumoEstoque(): void {
+
+    const produtos = produtoController.listarProdutos();
+
+    if (produtos.length === 0) {
+        console.log(colors.fg.yellow, "Nenhum produto cadastrado.", colors.reset);
+        return;
+    }
+
+    const total = produtos.length;
+
+    const totalSmartphones = produtos.filter(
+        (p: Produto) => p.tipo === 1
+    ).length;
+
+    const totalNotebooks = produtos.filter(
+        (p: Produto) => p.tipo === 2
+    ).length;
+
+    const maisCaro = produtos.reduce(
+        (maior: Produto, atual: Produto) =>
+            atual.preco > maior.preco ? atual : maior
+    );
+
+    const maisBarato = produtos.reduce(
+        (menor: Produto, atual: Produto) =>
+            atual.preco < menor.preco ? atual : menor
+    );
+
+    console.log(colors.fg.green, "\nRESUMO DO ESTOQUE\n", colors.reset);
+    console.log(`Total de produtos: ${total}`);
+    console.log(`Smartphones: ${totalSmartphones}`);
+    console.log(`Notebooks: ${totalNotebooks}`);
+    console.log("\nProduto mais caro:");
+    maisCaro.visualizar();
+    console.log("\nProduto mais barato:");
+    maisBarato.visualizar();
+}
+
+
 function criarProdutosTeste(): void {
 
     // Instâncias da Classe Smartphone
