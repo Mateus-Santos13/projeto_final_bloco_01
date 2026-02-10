@@ -75,6 +75,7 @@ export class ProdutoController implements ProdutoRepository {
         }
         return null;
     }
+    //Extra - Retornar o array de produtos
     public listarProdutos(): Produto[] {
         return this.listaProdutos;
     }

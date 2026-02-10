@@ -12,6 +12,7 @@ const produtoController = new ProdutoController();
 
 //Criar um array contendo os tipos de Produto;
 const tipoProduto = ['Smartphone', 'Notebook'];
+const listaOrdenacao = ['Ordenar por Nome', 'Ordenar por Preco'];
 
 export function main() {
 
@@ -35,6 +36,7 @@ export function main() {
         console.log("│  4 ─ Atualizar Produto                             │");
         console.log("│  5 ─ Remover Produto                               │");
         console.log("│  6 ─ Listar produtos por tipo                      │");
+        console.log("│  7 ─ Listar produtos ordenados por nome ou preço   │");
         console.log("│  0 ─ Sair                                          │");
         console.log("│                                                    │");
         console.log("└────────────────────────────────────────────────────┘");
@@ -78,6 +80,11 @@ export function main() {
             case 6:
                 console.log("\nListar produtos por tipo");
                 listarPorTipo();
+                keyPress();
+                break;
+            case 7:
+                console.log("\nListar produtos por tipo");
+                listarOrdenado();
                 keyPress();
                 break;
             default:
@@ -297,6 +304,41 @@ function listarPorTipo(){
     })
     
 }
+//Opção 7 -- Extra - Nova função, listar produtos ordenados por nome ou preço
+function listarOrdenado(){
+
+    console.log("Escolha o critério de ordenação:");
+    console.log("1 - Ordenar por Nome");
+    console.log("2 - Ordenar por Preço");
+
+    const opcao = Input.keyInSelect(listaOrdenacao, "", { cancel: false }) + 1;
+
+    const produtos = produtoController.listarProdutos();
+
+    if (produtos.length === 0) {
+        console.log(colors.fg.yellow, "Nenhum produto cadastrado.", colors.reset);
+        return;
+    }
+
+    switch (opcao) {
+        case 1:
+            produtos.sort((a, b) => a.nome.localeCompare(b.nome));
+            console.log(colors.fg.green, "\nProdutos ordenados por nome:\n", colors.reset);
+            break;
+
+        case 2:
+            produtos.sort((a, b) => a.preco - b.preco);
+            console.log(colors.fg.green, "\nProdutos ordenados por preço:\n", colors.reset);
+            break;
+
+        default:
+            console.log(colors.fg.red, "Opção inválida!", colors.reset);
+            return;
+    }
+
+    produtos.forEach(produto => produto.visualizar());
+    
+}
 function criarProdutosTeste(): void {
 
     // Instâncias da Classe Smartphone
@@ -306,8 +348,8 @@ function criarProdutosTeste(): void {
 
     // Instâncias da Classe Notebook
     //id: number, nome: string, tipo: number, preco: number, processador: string, tamanhoTela: string
-    produtoController.cadastrar(new Notebook(produtoController.gerarID(), "Vivobook", 2, 7000.00, 'I7', 14.5));
-    produtoController.cadastrar(new Notebook(produtoController.gerarID(), "Nitro V15", 2, 7000.00, 'Ryzen 5 5600u', 16.5));
+    produtoController.cadastrar(new Notebook(produtoController.gerarID(), "Vivobook", 2, 12000.00, 'I7', 14.5));
+    produtoController.cadastrar(new Notebook(produtoController.gerarID(), "Nitro V15", 2, 4000.00, 'Ryzen 5 5600u', 16.5));
 }
 
 main();
