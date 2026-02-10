@@ -27,11 +27,11 @@ export function main() {
         console.log(colors.fg.cyan);
         console.log("┌────────────────────── MENU ────────────────────────┐");
         console.log("│                                                    │");
-        console.log("│  1 ─ Cadastrar Produto                             │");
-        console.log("│  2 ─ Listar todos os Produtos                      │");
-        console.log("│  3 ─ Buscar Produto pelo nome                      │");
-        console.log("│  4 ─ Atualizar dados do Produto                    │");
-        console.log("│  5 ─ Remover Produto do carrinho                   │");
+        console.log("│  1 ─ Listar todos os Produtos                      │");
+        console.log("│  2 ─ Buscar Produto pelo ID                        │");
+        console.log("│  3 ─ Cadastrar Produto                             │");
+        console.log("│  4 ─ Atualizar Produto                             │");
+        console.log("│  5 ─ Remover Produto                               │");
         console.log("│  0 ─ Sair                                          │");
         console.log("│                                                    │");
         console.log("└────────────────────────────────────────────────────┘");
@@ -48,16 +48,16 @@ export function main() {
         }
         switch (opcao) { //Opções do menu
             case 1:
-                console.log("\nCadastrar Produto");
+                console.log("\nListar todos os Produtos");
                 
                 keyPress();
                 break;
             case 2:
-                console.log("\nListar todos os Produtos");
+                console.log("\nBuscar Produto pelo ID");
                 keyPress();
                 break;
             case 3:
-                console.log("\nBuscar Produto pelo nome");
+                console.log("\nCadastrar Produto");
                 keyPress();
                 break;
             case 4:
