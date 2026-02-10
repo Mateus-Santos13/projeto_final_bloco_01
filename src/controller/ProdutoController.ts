@@ -75,4 +75,7 @@ export class ProdutoController implements ProdutoRepository {
         }
         return null;
     }
+    public listarProdutos(): Produto[] {
+        return this.listaProdutos;
+    }
 }

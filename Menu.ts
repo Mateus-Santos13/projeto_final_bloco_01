@@ -34,6 +34,7 @@ export function main() {
         console.log("│  3 ─ Cadastrar Produto                             │");
         console.log("│  4 ─ Atualizar Produto                             │");
         console.log("│  5 ─ Remover Produto                               │");
+        console.log("│  6 ─ Listar produtos por tipo                      │");
         console.log("│  0 ─ Sair                                          │");
         console.log("│                                                    │");
         console.log("└────────────────────────────────────────────────────┘");
@@ -49,7 +50,7 @@ export function main() {
             process.exit(0);
         }
         switch (opcao) { //Opções do menu
-            case 1://Pronto
+            case 1:
                 console.log("\nListar todos os Produtos");
                 listarTodos()
                 keyPress();
@@ -72,6 +73,11 @@ export function main() {
             case 5:
                 console.log("\nRemover Produto");
                 deletarProdutoPorNumero();
+                keyPress();
+                break;
+            case 6:
+                console.log("\nListar produtos por tipo");
+                listarPorTipo();
                 keyPress();
                 break;
             default:
@@ -118,7 +124,11 @@ function criarProduto() {
     console.log("Digite o nome do produto: ");
 
     const nome = Input.question("");
-
+    //Extra - Verificar se o nome passado para a função está vazio.
+    if (nome.trim() === "") {
+        console.log(colors.fg.red, "Nome do produto não pode ser vazio!", colors.reset);
+        return;
+    }
     console.log("Selecione o tipo da Produto: ");
 
     console.log("1 - Smartphone");
@@ -129,23 +139,36 @@ function criarProduto() {
     console.log("Digite o preço do Produto: ");
 
     const preco = Input.questionFloat("");
+    //Extra - Verificar se o preço é 0 ou negativo.
+    if (preco <= 0) {
+        console.log(colors.fg.red, "Preço inválido! O valor deve ser maior que zero.", colors.reset);
+        return;
+    }
 
     switch (tipo) {
         case 1:
-            //Produto Medicamento
+            //Smartphone
             console.log("Digite a marca do smartphone: ");
             const marca = Input.question("");
             console.log("Digite a memória do smartphone: ");
             const memoria = Input.questionFloat("");
+            if (memoria <= 0) {
+                console.log(colors.fg.red, "Memória inválida! A memória deve ser maior que zero. Verifique os dados e tente novamente.", colors.reset);
+                return;
+            }
             //id: number, nome: string, tipo: number, preco: number, marca: string, memoria: number
             produtoController.cadastrar(new Smartphone(produtoController.gerarID(), nome, tipo, preco, marca, memoria));
             break;
         case 2:
-
+            //Notebook
             console.log("Digite o processador do notebook: ");
             const processador = Input.question("");
             console.log("Digite o tamanho da tela do notebook: ");
             const tamanhoTela = Input.questionFloat("");
+            if (tamanhoTela <= 0) {
+                console.log(colors.fg.red, "Tamanho de tela inválido! O tamanho da tela deve ser maior que 0. Verifique os dados e tente novamente.", colors.reset);
+                return;
+            }
             //id: number, nome: string, tipo: number, preco: number, processador: string, tamanhoTela: number
             produtoController.cadastrar(new Notebook(produtoController.gerarID(), nome, tipo, preco, processador, tamanhoTela));
             break;
@@ -157,48 +180,24 @@ function criarProduto() {
 //Opção 4 -- Testado e funcionando
 function atualizarProduto(): void {
 
-    // Solicita o número da Produto
     console.log("Digite o ID do Produto: ");
     const id = Input.questionInt("");
 
-    // Verifica se a Produto existe
     const Produto = produtoController.buscarNoArray(id);
 
-    // Se a Produto existir...
     if (Produto !== null) {
-
-        /**
-         * Guarda os valores atuais da Produto em variáveis
-         * Exceto tipo que não será aramazenado em uma constante
-         * porque não terá o seu valor modificado
-         */
         let id: number = Produto.id;
         let nome: string = Produto.nome;
         const tipo: number = Produto.tipo;
         let preco: number = Produto.preco;
 
-        /**
-         * Atualização da Agência
-         * 
-         * 1. Exibe o valor atual da agência
-         * 2. Se pressionar ENTER o valor atual será mantido
-         * 3. Para o ENTER funcionar, passamos o parâmetro
-         *    default input, que indica o valor padrão (solução mais simples)
-         * 4. Caso contrário o valor atual será substituído
-         * 5. Como estamos usando o  método questionInt, 
-         *    a validação dos dados está garantida
-         * 
-         * Os demais atributos seguirão a mesma lógica, alterando
-         * apenas a função de input, de acordo com o tipo.
-         */
-
-        // Atualização da Titular
+        // Atualização do Nome
         console.log(`\nNome do produto atual: ${nome}`);
         console.log("Digite o novo nome do produto: ");
         console.log("(Pressione ENTER para manter o valor atual)");
         nome = Input.question("", { defaultInput: nome });
 
-        // Atualização do Saldo
+        // Atualização do preço
         console.log(`\nPreço atual: ${formatarMoeda(preco)}`);
         console.log("Digite o novo preço do produto: ");
         console.log("(Pressione ENTER para manter o valor atual)");
@@ -211,7 +210,7 @@ function atualizarProduto(): void {
 
                 // Atualização da marca
                 console.log(`\nMarca atual: ${marca}`);
-                console.log("Digite o novo nome da marca: ");
+                console.log("Digite a nova marca: ");
                 console.log("(Pressione ENTER para manter o valor atual)");
                 marca = Input.question("", { defaultInput: marca });
 
@@ -268,6 +267,35 @@ function deletarProdutoPorNumero(): void {
         }
         produtoController.deletar(id);
     }
+}
+//Opção 6 -- Extra - Nova função, listar produtos de um mesmo tipo
+function listarPorTipo(){
+
+    console.log("Selecione o tipo da Produto: ");
+
+    console.log("1 - Smartphone");
+    console.log("2 - Notebook");
+
+    const tipo = Input.keyInSelect(tipoProduto, "", { cancel: false }) + 1;
+
+    const produtos = produtoController.listarProdutos();
+
+    let encontrados = false;
+
+    produtos.forEach(produto => {
+        if(tipo === 1 && produto instanceof Smartphone){
+            produto.visualizar();
+            encontrados = true;
+        }
+        if(tipo === 2 && produto instanceof Notebook){
+            produto.visualizar();
+            encontrados = true;
+        }
+        if(!encontrados){
+            console.log("Nenhum produto do tipo selecionado foi encontrado!");
+        }
+    })
+    
 }
 function criarProdutosTeste(): void {
 
